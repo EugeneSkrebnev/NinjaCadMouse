@@ -29,8 +29,8 @@ enum ButtonState
 
 // values below were measured from an esp8266
 // 
-const int c_ButtonAnalogValue_None = 1023;
-const int c_ButtonAnalogValue_Error = 20; // normal measured drift * 10
+const int c_ButtonAnalogValue_None = 0;
+const int c_ButtonAnalogValue_Error = 40; // normal measured drift * 10
 
 const size_t c_AnalogReadAverageCount = 5;
 
@@ -194,19 +194,17 @@ private:
 
     uint8_t valueToButtonId(int value)
     {
+        if (value < 20)
+            return ButtonId_None;
         // check the common state of no buttons pressed
-        if (value < _analogTable[_analogTableCount - 1] + _analogValueError)
-        {
             // search the table for the button
-            for (uint8_t button = 0; button < _analogTableCount; button++)
+        for (uint8_t button = 0; button < _analogTableCount; button++)
+        {
+            if (value < _analogTable[button] + _analogValueError)
             {
-                if (value < _analogTable[button] + _analogValueError)
-                {
-                    return button;
-                }
+                return button;
             }
         }
-        
         return ButtonId_None;
     }
 };
